@@ -161,140 +161,123 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 relative">
-        {/* Desktop Top Centered Logo & FDIC Tagline */}
-        <div className="hidden lg:flex flex-col items-center justify-center pt-2 pb-2">
-          <a
-            href="#"
-            onClick={(e) => {
-              if (onNavigateHome) {
-                e.preventDefault();
-                onNavigateHome();
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 relative">
+        {/* Mobile Top Navigation Bar: NO Logo, NO App Name. Clean compact row of functional controls */}
+        <div className="flex lg:hidden items-center justify-end h-14 w-full gap-2 sm:gap-2.5 relative">
+          {/* Mobile Search Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen(!searchOpen)}
+            className="w-9 h-9 min-h-[36px] min-w-[36px] flex items-center justify-center bg-[#BEE0F8] hover:bg-[#A6D6F7] dark:bg-slate-800 dark:hover:bg-slate-700 text-[#1C2B4C] dark:text-slate-200 rounded-full transition-colors cursor-pointer shrink-0"
+            title="Search"
+            aria-label="Search"
+          >
+            <Search className="w-4 h-4 text-[#1C2B4C] dark:text-slate-200 stroke-[2.5]" />
+          </button>
+
+          {/* Account Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (onOpenOpenAccount) {
+                onOpenOpenAccount();
+              } else if (onOpenRegister) {
+                onOpenRegister();
               }
             }}
-            className="flex flex-col items-center group cursor-pointer"
-            aria-label="Aurelith Reserve Home"
+            className="px-3 py-1.5 sm:px-3.5 sm:py-2 min-h-[36px] bg-[#C8102E] hover:bg-[#A00B22] text-white text-xs sm:text-sm font-bold rounded-full transition-all duration-150 cursor-pointer shadow-xs active:scale-95 flex items-center justify-center whitespace-nowrap shrink-0"
+            aria-label="Open an Account"
           >
-            {/* Desktop Brand Logo */}
-            <div className="py-1">
+            Account
+          </button>
+
+          {/* Login / Banking Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (user && onNavigateBanking) {
+                onNavigateBanking();
+              } else if (onOpenSignIn) {
+                onOpenSignIn();
+              } else {
+                toggleLogin();
+              }
+            }}
+            className="px-3 py-1.5 sm:px-3.5 sm:py-2 min-h-[36px] bg-[#202B48] hover:bg-[#18223B] dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold rounded-full flex items-center space-x-1.5 shadow-xs transition-colors cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
+            aria-label={user ? 'Banking Dashboard' : 'Customer Login'}
+          >
+            {user ? (
+              <>
+                <UserAvatar
+                  firstName={user.firstName}
+                  lastName={user.lastName}
+                  avatarUrl={user.avatarUrl}
+                  size="xs"
+                  className="ring-1 ring-white/30"
+                />
+                <span>Banking</span>
+              </>
+            ) : (
+              <>
+                <Lock className="w-3.5 h-3.5 text-white stroke-[2.2]" />
+                <span>Login</span>
+              </>
+            )}
+          </button>
+
+          {/* Hamburger Menu Icon (3 horizontal stripes) */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center text-[#1C2B4C] dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors active:scale-95 shrink-0"
+            aria-label="Toggle mobile menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6 text-[#1C2B4C] dark:text-slate-200 stroke-[2.2]" />
+            ) : (
+              <Menu className="w-6 h-6 text-[#1C2B4C] dark:text-slate-200 stroke-[2.2]" />
+            )}
+          </button>
+        </div>
+
+        {/* Desktop Navigation Bar: Extreme Left Logo + Center Nav Links + Extreme Right Controls */}
+        <div className="hidden lg:grid grid-cols-[auto_1fr_auto] items-center w-full h-16 relative">
+          {/* 1. Extreme Left: Aurelith Reserve Logo (Application name removed from desktop top nav) */}
+          <div className="flex items-center justify-start shrink-0">
+            <a
+              href="#"
+              onClick={(e) => {
+                if (onNavigateHome) {
+                  e.preventDefault();
+                  onNavigateHome();
+                }
+              }}
+              className="flex items-center shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C8102E] rounded-md transition-opacity hover:opacity-90"
+              aria-label="Aurelith Reserve Home"
+            >
               <BrandLogo
-                showText
-                subtext="Wealth Management & Banking"
-                imgClassName="h-9 w-auto object-contain"
-                textClassName="text-[22px] font-extrabold tracking-tight text-[#1C2B4C] dark:text-white font-sans"
-                subtextClassName="text-[9px] uppercase tracking-[0.25em] text-[#C8102E] dark:text-red-400 font-bold mt-0.5"
+                showText={false}
+                imgClassName="h-8 xl:h-9 w-auto object-contain"
               />
-            </div>
-            
-            {/* FDIC Sub-text centered directly under logo */}
-            <div className="flex items-center space-x-1.5 text-[11px] sm:text-[12px] text-[#1C2B4C] dark:text-slate-300 font-normal mt-1.5">
-              <span className="font-extrabold text-[#1C2B4C] dark:text-slate-100 tracking-wide">FDIC</span>
-              <span className="italic text-gray-600 dark:text-slate-400 font-medium">FDIC-Insured - Backed by the full faith and credit of the U.S. Government</span>
-            </div>
-          </a>
-        </div>
-
-        {/* Mobile Top Navigation Bar: Logo, Account, Login, Hamburger */}
-        <div className="flex lg:hidden items-center justify-between py-2 relative">
-          {/* 1. Official Aurelith Reserve Logo (Switches light/dark, text removed on mobile) */}
-          <a
-            href="#"
-            onClick={(e) => {
-              if (onNavigateHome) {
-                e.preventDefault();
-                onNavigateHome();
-              }
-            }}
-            className="flex items-center cursor-pointer shrink-0"
-            aria-label="Aurelith Reserve Home"
-          >
-            <BrandLogo
-              showText={false}
-              imgClassName="h-8 sm:h-9 w-auto object-contain"
-            />
-          </a>
-
-          {/* Right Action Group: Account Button, Login Button, Hamburger Menu Icon */}
-          <div className="flex items-center space-x-2 sm:space-x-2.5">
-            {/* 4. Account Button (Clearly identifiable entry point to account opening) */}
-            <button
-              type="button"
-              onClick={() => {
-                if (onOpenOpenAccount) {
-                  onOpenOpenAccount();
-                } else if (onOpenRegister) {
-                  onOpenRegister();
-                }
-              }}
-              className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-[#C8102E] hover:bg-[#A00B22] text-white text-xs sm:text-sm font-bold rounded-full transition-all duration-150 cursor-pointer shadow-xs active:scale-95 flex items-center justify-center"
-              aria-label="Open an Account"
-            >
-              Account
-            </button>
-
-            {/* 2. Login Button */}
-            <button
-              type="button"
-              onClick={() => {
-                if (user && onNavigateBanking) {
-                  onNavigateBanking();
-                } else if (onOpenSignIn) {
-                  onOpenSignIn();
-                } else {
-                  toggleLogin();
-                }
-              }}
-              className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-[#202B48] hover:bg-[#18223B] dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold rounded-full flex items-center space-x-1.5 shadow-xs transition-colors cursor-pointer active:scale-95"
-              aria-label={user ? 'Banking Dashboard' : 'Customer Login'}
-            >
-              {user ? (
-                <>
-                  <UserAvatar
-                    firstName={user.firstName}
-                    lastName={user.lastName}
-                    avatarUrl={user.avatarUrl}
-                    size="xs"
-                    className="ring-1 ring-white/30"
-                  />
-                  <span>Banking</span>
-                </>
-              ) : (
-                <>
-                  <Lock className="w-3.5 h-3.5 text-white stroke-[2.2]" />
-                  <span>Login</span>
-                </>
-              )}
-            </button>
-
-            {/* 3. Hamburger Menu Icon (3 horizontal stripes) */}
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 text-[#1C2B4C] dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors active:scale-95"
-              aria-label="Toggle mobile menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6 text-[#1C2B4C] dark:text-slate-200 stroke-[2.2]" />
-              ) : (
-                <Menu className="w-6 h-6 text-[#1C2B4C] dark:text-slate-200 stroke-[2.2]" />
-              )}
-            </button>
+            </a>
           </div>
-        </div>
 
-        {/* Desktop Navigation Links & Action Buttons Row */}
-        <div className="hidden lg:flex items-center justify-between pt-2 pb-1 relative">
-          {/* Navigation Links Left */}
-          <nav ref={navRef} className="flex items-center space-x-6 xl:space-x-8 text-[#1C2B4C] dark:text-slate-200 font-semibold text-[15px]">
+          {/* 2. Center: Navigation Items (Personal, Business, Wealth Management, About Us, Locations) */}
+          <div className="flex items-center justify-center min-w-0 px-3 xl:px-6">
+            <nav
+              ref={navRef}
+              className="flex items-center gap-4 xl:gap-7 2xl:gap-9 text-[#1C2B4C] dark:text-slate-200 font-semibold text-[13.5px] xl:text-[15px] whitespace-nowrap"
+            >
             
             {/* Personal Dropdown */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => toggleDropdown('personal')}
-                className="flex items-center space-x-1.5 py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors cursor-pointer"
+                className={`flex items-center gap-1.5 py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors cursor-pointer select-none whitespace-nowrap ${activeDropdown === 'personal' ? 'text-[#C8102E] dark:text-red-400' : ''}`}
               >
                 <span>Personal</span>
-                <ChevronDown className={`w-4 h-4 text-[#1C2B4C] dark:text-slate-300 transition-transform duration-200 ${activeDropdown === 'personal' ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 text-[#1C2B4C] dark:text-slate-300 transition-transform duration-200 ${activeDropdown === 'personal' ? 'rotate-180' : ''}`} />
               </button>
               {activeDropdown === 'personal' && (
                 <div className="absolute top-full left-0 w-60 bg-[#253353] shadow-2xl rounded-xl border border-[#34466f] p-1.5 z-50 animate-fadeIn text-white space-y-0.5">
@@ -444,11 +427,12 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Business Dropdown */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => toggleDropdown('business')}
-                className="flex items-center space-x-1.5 py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors cursor-pointer"
+                className={`flex items-center gap-1.5 py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors cursor-pointer select-none whitespace-nowrap ${activeDropdown === 'business' ? 'text-[#C8102E] dark:text-red-400' : ''}`}
               >
                 <span>Business</span>
-                <ChevronDown className={`w-4 h-4 text-[#1C2B4C] dark:text-slate-300 transition-transform duration-200 ${activeDropdown === 'business' ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 text-[#1C2B4C] dark:text-slate-300 transition-transform duration-200 ${activeDropdown === 'business' ? 'rotate-180' : ''}`} />
               </button>
               {activeDropdown === 'business' && (
                 <div className="absolute top-full left-0 w-60 bg-[#253353] shadow-2xl rounded-xl border border-[#34466f] p-1.5 z-50 animate-fadeIn text-white space-y-0.5">
@@ -535,11 +519,12 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Wealth Management Dropdown */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => toggleDropdown('wealth')}
-                className="flex items-center space-x-1.5 py-2 hover:text-[#C8102E] transition-colors cursor-pointer"
+                className={`flex items-center gap-1.5 py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors cursor-pointer select-none whitespace-nowrap ${activeDropdown === 'wealth' ? 'text-[#C8102E] dark:text-red-400' : ''}`}
               >
                 <span>Wealth Management</span>
-                <ChevronDown className={`w-4 h-4 text-[#1C2B4C] transition-transform duration-200 ${activeDropdown === 'wealth' ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 text-[#1C2B4C] dark:text-slate-300 transition-transform duration-200 ${activeDropdown === 'wealth' ? 'rotate-180' : ''}`} />
               </button>
               {activeDropdown === 'wealth' && (
                 <div className="absolute top-full left-0 w-64 bg-[#253353] shadow-2xl rounded-xl border border-[#34466f] p-1.5 z-50 animate-fadeIn text-white space-y-0.5">
@@ -595,11 +580,12 @@ export const Header: React.FC<HeaderProps> = ({
             {/* About Us Dropdown */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => toggleDropdown('about')}
-                className="flex items-center space-x-1.5 py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors cursor-pointer"
+                className={`flex items-center gap-1.5 py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors cursor-pointer select-none whitespace-nowrap ${activeDropdown === 'about' ? 'text-[#C8102E] dark:text-red-400' : ''}`}
               >
                 <span>About Us</span>
-                <ChevronDown className={`w-4 h-4 text-[#1C2B4C] dark:text-slate-300 transition-transform duration-200 ${activeDropdown === 'about' ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 text-[#1C2B4C] dark:text-slate-300 transition-transform duration-200 ${activeDropdown === 'about' ? 'rotate-180' : ''}`} />
               </button>
               {activeDropdown === 'about' && (
                 <div className="absolute top-full left-0 w-60 bg-[#253353] shadow-2xl rounded-xl border border-[#34466f] p-1.5 z-50 animate-fadeIn text-white space-y-0.5">
@@ -649,64 +635,74 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Locations */}
             <button
+              type="button"
               onClick={onOpenLocations}
-              className="py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors font-semibold cursor-pointer"
+              className="py-2 hover:text-[#C8102E] dark:hover:text-red-400 transition-colors font-semibold cursor-pointer select-none whitespace-nowrap"
             >
               Locations
             </button>
           </nav>
+          </div>
 
-          {/* Action Buttons Right - Exact Match + Authenticated Experience */}
-          <div className="flex items-center space-x-3 relative">
+          {/* 3. Extreme Right Action Controls: Account, Login, Contact, Search */}
+          <div className="flex items-center justify-end gap-2 xl:gap-2.5 shrink-0">
             {/* Open Account / Dashboard Button */}
             {user ? (
               <button
+                type="button"
                 onClick={onNavigateBanking}
-                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-[#1C2B4C] to-[#2B3E68] hover:from-[#152033] hover:to-[#202E4E] text-white text-sm font-bold rounded-full transition-all duration-150 cursor-pointer shadow-xs hover:shadow-md space-x-2"
+                className="inline-flex items-center justify-center px-3 py-1.5 xl:px-4 xl:py-2 bg-gradient-to-r from-[#1C2B4C] to-[#2B3E68] hover:from-[#152033] hover:to-[#202E4E] text-white text-xs xl:text-sm font-bold rounded-full transition-all duration-150 cursor-pointer shadow-xs hover:shadow-md gap-1.5 whitespace-nowrap active:scale-95 shrink-0"
               >
                 <UserAvatar
                   firstName={user.firstName}
                   lastName={user.lastName}
                   avatarUrl={user.avatarUrl}
-                  size="sm"
-                  className="ring-1 ring-white/30"
+                  size="xs"
+                  className="ring-1 ring-white/30 shrink-0"
                 />
-                <span>{user.firstName} (Dashboard)</span>
+                <span className="hidden xl:inline">{user.firstName} (Dashboard)</span>
+                <span className="xl:hidden">Dashboard</span>
               </button>
             ) : (
               <>
                 <button
+                  type="button"
                   onClick={onOpenRegister || onOpenOpenAccount}
-                  className="inline-flex items-center justify-center px-4 py-2.5 bg-[#C8102E] hover:bg-[#A00B22] text-white text-sm font-bold rounded-full transition-all duration-150 cursor-pointer shadow-xs hover:shadow-md"
+                  className="inline-flex items-center justify-center px-3 py-1.5 xl:px-4 xl:py-2 bg-[#C8102E] hover:bg-[#A00B22] text-white text-xs xl:text-sm font-bold rounded-full transition-all duration-150 cursor-pointer shadow-xs hover:shadow-md whitespace-nowrap active:scale-95 shrink-0"
                 >
-                  Open an Account
+                  <span className="hidden xl:inline">Open an Account</span>
+                  <span className="xl:hidden">Open Account</span>
                 </button>
                 <button
+                  type="button"
                   onClick={onOpenSignIn || toggleLogin}
-                  className="inline-flex items-center justify-center px-4 py-2.5 bg-[#202B48] hover:bg-[#182239] text-white text-sm font-bold rounded-full transition-all duration-150 cursor-pointer shadow-xs hover:shadow-md"
+                  className="inline-flex items-center justify-center px-2.5 py-1.5 xl:px-3.5 xl:py-2 bg-[#202B48] hover:bg-[#182239] dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs xl:text-sm font-semibold rounded-full transition-all duration-150 cursor-pointer shadow-xs hover:shadow-md whitespace-nowrap gap-1 active:scale-95 shrink-0"
                 >
-                  <Lock className="w-4 h-4 mr-2 text-white" />
-                  Login
+                  <Lock className="w-3.5 h-3.5 text-white shrink-0" />
+                  <span>Login</span>
                 </button>
               </>
             )}
 
             {/* Contact Us */}
             <button
+              type="button"
               onClick={onOpenContact}
-              className="inline-flex items-center justify-center px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#1C2B4C] dark:text-slate-200 text-sm font-bold rounded-full transition-all duration-150 cursor-pointer"
+              className="inline-flex items-center justify-center px-2.5 py-1.5 xl:px-3.5 xl:py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#1C2B4C] dark:text-slate-200 text-xs xl:text-sm font-semibold rounded-full transition-all duration-150 cursor-pointer whitespace-nowrap gap-1 shrink-0"
             >
-              <Mail className="w-4 h-4 mr-1.5 text-[#1C2B4C] dark:text-slate-200" />
-              Contact
+              <Mail className="w-3.5 h-3.5 text-[#1C2B4C] dark:text-slate-200 shrink-0" />
+              <span className="hidden xl:inline">Contact</span>
             </button>
 
-            {/* Light Blue Circle Search Button */}
+            {/* Search Button (Final control on extreme right) */}
             <button
+              type="button"
               onClick={() => setSearchOpen(!searchOpen)}
-              className="w-10 h-10 flex items-center justify-center bg-[#BEE0F8] hover:bg-[#A6D6F7] dark:bg-slate-800 dark:hover:bg-slate-700 text-[#1C2B4C] dark:text-slate-200 rounded-full transition-colors cursor-pointer"
+              className="w-8 h-8 xl:w-9 xl:h-9 flex items-center justify-center bg-[#BEE0F8] hover:bg-[#A6D6F7] dark:bg-slate-800 dark:hover:bg-slate-700 text-[#1C2B4C] dark:text-slate-200 rounded-full transition-colors cursor-pointer shrink-0"
               title="Search"
+              aria-label="Search"
             >
-              <Search className="w-4 h-4 text-[#1C2B4C] dark:text-slate-200 stroke-[2.5]" />
+              <Search className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-[#1C2B4C] dark:text-slate-200 stroke-[2.5] shrink-0" />
             </button>
           </div>
         </div>
