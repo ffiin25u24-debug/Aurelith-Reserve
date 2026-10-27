@@ -1,9 +1,11 @@
 [build]
-  command = "npm run build"
+  command = "bun run build"
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  BUN_VERSION = "latest"
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 # Production Security Headers
 [[headers]]
