@@ -30,9 +30,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer() {
-  const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+  // Parse CLI arguments (--port, --host) or default to 3000 in development
+  const args = process.argv.slice(2);
+  let cliPort: number | null = null;
+  const portIdx = args.indexOf('--port');
+  if (portIdx !== -1 && args[portIdx + 1]) {
+    cliPort = Number(args[portIdx + 1]);
+  }
 
+  // Dev server must run on port 3000 per AI Studio environment constraints.
+  // In production (e.g. Cloud Run), honor process.env.PORT.
+  const PORT = cliPort || (process.env.NODE_ENV === 'production' ? (Number(process.env.PORT) || 8080) : 3000);
+
+  const app = express();
   app.use(express.json({ limit: '10mb' }));
 
   // Sanitizer: never send passwordHash, salt, or pin hashes to the client
@@ -2603,14 +2613,25 @@ async function startServer() {
     });
   } else {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: process.env.DISABLE_HMR === 'true' ? false : undefined,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Aurelith Reserve server running on http://0.0.0.0:${PORT}`);
+  });
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use.`);
+    } else {
+      console.error('Server error:', err);
+    }
   });
 }
 

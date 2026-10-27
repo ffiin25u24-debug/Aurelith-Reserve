@@ -60,36 +60,81 @@ export default function App() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [activeFooterPageId, setActiveFooterPageId] = useState<string>('who-we-are');
 
-  // Synchronize hash with footer pages on mount and hashchange
+  // Synchronize URL pathname & hash with application views (on initial mount, popstate, and hashchange)
   useEffect(() => {
-    const handleHashSync = () => {
-      const hash = window.location.hash.replace('#', '');
+    const syncRouteFromLocation = () => {
+      const pathname = window.location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+
+      // 1. Check footer pages via hash or path (e.g. /who-we-are or #who-we-are)
+      const cleanPathId = pathname.replace(/^\//, '');
       if (hash && FOOTER_PAGES[hash]) {
         setActiveFooterPageId(hash);
         setCurrentPage('footer-page');
+        return;
+      }
+      if (cleanPathId && FOOTER_PAGES[cleanPathId]) {
+        setActiveFooterPageId(cleanPathId);
+        setCurrentPage('footer-page');
+        return;
+      }
+
+      // 2. Check primary application routes
+      if (pathname === '/sign-in' || pathname === '/login') {
+        setCurrentPage('sign-in');
+      } else if (pathname === '/register' || pathname === '/signup') {
+        setCurrentPage('register');
+      } else if (pathname === '/open-account' || pathname === '/accounts/open') {
+        setCurrentPage('open-account');
+      } else if (pathname === '/contact' || pathname === '/support') {
+        setCurrentPage('contact');
+      } else if (pathname.startsWith('/banking') || pathname.startsWith('/dashboard')) {
+        // Parse banking sub-tab if specified (e.g. /banking/transfers)
+        const parts = pathname.split('/').filter(Boolean);
+        const subTab = parts[1] as BankingTab;
+        const validTabs: BankingTab[] = [
+          'home', 'overview', 'accounts', 'transfers', 'bills', 'cards',
+          'loans', 'savings', 'transactions', 'statements', 'notifications',
+          'profile', 'settings', 'support'
+        ];
+        if (subTab && validTabs.includes(subTab)) {
+          setCurrentBankingTab(subTab);
+        }
+        setCurrentPage('banking');
+      } else {
+        // Default to home for '/' or unrecognized paths
+        setCurrentPage('home');
       }
     };
-    handleHashSync();
-    window.addEventListener('hashchange', handleHashSync);
-    return () => window.removeEventListener('hashchange', handleHashSync);
+
+    syncRouteFromLocation();
+    window.addEventListener('popstate', syncRouteFromLocation);
+    window.addEventListener('hashchange', syncRouteFromLocation);
+    return () => {
+      window.removeEventListener('popstate', syncRouteFromLocation);
+      window.removeEventListener('hashchange', syncRouteFromLocation);
+    };
   }, []);
 
   // If user signs out while on banking dashboard, return smoothly to home
   useEffect(() => {
     if (!user && currentPage === 'banking') {
       setCurrentPage('home');
+      try {
+        if (window.location.pathname.startsWith('/banking')) {
+          window.history.pushState(null, '', '/');
+        }
+      } catch {}
     }
   }, [user, currentPage]);
 
   const handleNavigateHome = () => {
     setCurrentPage('home');
-    if (window.location.hash) {
-      try {
-        history.pushState('', document.title, window.location.pathname + window.location.search);
-      } catch {
-        window.location.hash = '';
+    try {
+      if (window.location.pathname !== '/' || window.location.hash) {
+        window.history.pushState(null, '', '/');
       }
-    }
+    } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -97,7 +142,7 @@ export default function App() {
     setActiveFooterPageId(pageId);
     setCurrentPage('footer-page');
     try {
-      history.pushState('', document.title, `#${pageId}`);
+      window.history.pushState(null, '', `/#${pageId}`);
     } catch {
       window.location.hash = pageId;
     }
@@ -106,11 +151,17 @@ export default function App() {
 
   const handleContactClick = () => {
     setCurrentPage('contact');
+    try {
+      window.history.pushState(null, '', '/contact');
+    } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleOpenAccountOnline = () => {
     setCurrentPage('open-account');
+    try {
+      window.history.pushState(null, '', '/open-account');
+    } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -119,17 +170,26 @@ export default function App() {
       setSelectedAccountType(accountType);
     }
     setCurrentPage('register');
+    try {
+      window.history.pushState(null, '', '/register');
+    } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleOpenSignIn = () => {
     setCurrentPage('sign-in');
+    try {
+      window.history.pushState(null, '', '/sign-in');
+    } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNavigateBanking = (tab: BankingTab = 'home') => {
     setCurrentBankingTab(tab);
     setCurrentPage('banking');
+    try {
+      window.history.pushState(null, '', tab === 'home' ? '/banking' : `/banking/${tab}`);
+    } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

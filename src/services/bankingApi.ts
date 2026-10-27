@@ -28,6 +28,12 @@ export function clearAuthToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+const API_BASE_URL = (
+  (typeof import.meta !== 'undefined' &&
+    (import.meta.env?.VITE_API_URL || import.meta.env?.VITE_API_BASE_URL)) ||
+  ''
+).replace(/\/$/, '');
+
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
   const deviceId = getOrCreateDeviceId();
@@ -41,10 +47,36 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(endpoint, {
-    ...options,
-    headers,
-  });
+  const requestUrl =
+    endpoint.startsWith('http://') || endpoint.startsWith('https://')
+      ? endpoint
+      : API_BASE_URL
+        ? `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`
+        : endpoint;
+
+  let res: Response;
+  try {
+    res = await fetch(requestUrl, {
+      ...options,
+      headers,
+    });
+  } catch (fetchErr: any) {
+    const networkMsg = fetchErr?.message || 'Network request failed';
+    const error = new Error(
+      `Unable to connect to Aurelith Reserve banking services (${networkMsg}). Please verify network connectivity or backend API server configuration.`
+    ) as any;
+    error.isNetworkError = true;
+    throw error;
+  }
+
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('text/html')) {
+    const error = new Error(
+      `Banking API endpoint returned an HTML document (HTTP ${res.status}). If deploying to static hosting like Netlify, configure VITE_API_URL to point to your live backend server.`
+    ) as any;
+    error.status = res.status;
+    throw error;
+  }
 
   const data = await res.json().catch(() => ({}));
 

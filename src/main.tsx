@@ -4,14 +4,17 @@ import App from './App.tsx';
 import './index.css';
 import { ThemeProvider } from './context/ThemeContext';
 import { BankingAuthProvider } from './context/BankingAuthContext';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider>
-      <BankingAuthProvider>
-        <App />
-      </BankingAuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <BankingAuthProvider>
+          <App />
+        </BankingAuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );
 

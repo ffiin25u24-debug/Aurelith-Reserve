@@ -95,7 +95,12 @@ export const BankingAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     try {
       const res = await bankingApi.getCurrentUser();
-      const currentUser = res.user;
+      const currentUser = res?.user;
+      if (!currentUser) {
+        clearAuthToken();
+        setUser(null);
+        return null;
+      }
 
       // Check Firestore profile for persistent photo and bank selection
       const uid = auth.currentUser?.uid || currentUser.firebaseUid;
@@ -253,6 +258,9 @@ export const BankingAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       setPendingVerification(null);
       const verifiedRes = res as { requireDeviceVerification: false; token: string; user: BankingUser; message: string };
+      if (!verifiedRes?.user) {
+        throw new Error('Authentication response was missing user account details. Please try again.');
+      }
       setUser(verifiedRes.user);
       await reloadTransactions();
 
@@ -276,6 +284,9 @@ export const BankingAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       setPendingVerification(null);
       const verifiedRes = res as { requireDeviceVerification: false; token: string; user: BankingUser; message: string };
+      if (!verifiedRes?.user) {
+        throw new Error('Authentication response was missing user account details. Please try again.');
+      }
       setUser(verifiedRes.user);
       await reloadTransactions();
 
